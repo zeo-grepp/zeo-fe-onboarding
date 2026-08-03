@@ -2,7 +2,11 @@
 import { useFetch } from "../composables/useFetch";
 import type { Problem } from "../mocks/data"; //TODO: type 폴더 분리 고려
 
-const { data: problems, isLoading, error } = useFetch<Problem[]>("/lists");
+const {
+  data: problems,
+  isLoading,
+  error,
+} = useFetch<Problem[]>(() => "/lists");
 </script>
 
 <template>
