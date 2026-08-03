@@ -38,11 +38,11 @@ ul {
   list-style: none;
   padding: 0;
   margin: 0;
-  border-top: 1px solid #d7e2eb;
+  border-top: 1px solid var(--color-border);
 }
 
 li {
-  border-bottom: 1px solid #d7e2eb;
+  border-bottom: 1px solid var(--color-border);
 }
 
 li a {
@@ -53,6 +53,6 @@ li a {
 }
 
 li a:hover {
-  background-color: #fbfbfd;
+  background-color: var(--color-border-hover);
 }
 </style>
