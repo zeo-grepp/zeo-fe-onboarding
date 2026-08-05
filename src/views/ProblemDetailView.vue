@@ -2,7 +2,8 @@
 import { useRoute } from "vue-router";
 import { useFetch } from "../composables/useFetch";
 import type { ProblemDetail } from "../mocks/data";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import CodeEditor from "../components/CodeEditor.vue";
 
 const route = useRoute();
 
@@ -11,6 +12,11 @@ const { data: problem } = useFetch<ProblemDetail>(
 );
 
 const selectedLanguageId = ref<number | null>(null);
+const selectedLanguage = computed(() =>
+  problem?.value?.languages.find(
+    (lang) => lang.id === selectedLanguageId.value,
+  ),
+);
 
 watch(
   problem,
@@ -24,6 +30,7 @@ watch(
 </script>
 
 <template>
+  <!-- TODO: 제목 표시 -->
   <div class="problem-detail">
     <nav>
       <RouterLink to="/">문제 목록</RouterLink>
@@ -48,7 +55,15 @@ watch(
           </select>
         </div>
 
-        <div class="editor">모나코 에디터</div>
+        <div class="editor">
+          <CodeEditor
+            v-if="problem && selectedLanguage"
+            :problemId="problem.id"
+            :languageId="selectedLanguage.id"
+            :code="selectedLanguage.initialCode"
+            :language="selectedLanguage.language"
+          />
+        </div>
 
         <div class="result">결과 표시</div>
 
@@ -108,6 +123,7 @@ nav a {
 
 .editor {
   flex: 1;
+  min-height: 0;
 }
 
 .language {
@@ -145,7 +161,7 @@ nav a {
   padding: 8px 20px;
   border: none;
   border-radius: 4px;
-  background-color: var(--corlor-primary);
+  background-color: var(--color-primary);
   color: #fff;
   font-size: 16px;
   font-weight: 500;
@@ -153,6 +169,6 @@ nav a {
 }
 
 .submit button:hover {
-  background-color: var(--corlor-primary-hover);
+  background-color: var(--color-primary-hover);
 }
 </style>
