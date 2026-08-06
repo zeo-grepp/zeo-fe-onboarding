@@ -67,6 +67,10 @@ const {
   mutate,
 } = useMutation<[SubmitParams], { msg: string }>(submit);
 
+watch([problem, selectedLanguageId], () => {
+  submitResult.value = null;
+});
+
 const handleSubmit = () => {
   const code = codeEditorRef.value?.getCode();
 
@@ -89,9 +93,9 @@ const handleSubmit = () => {
   });
 };
 
-watch([problem, selectedLanguageId], () => {
-  submitResult.value = null;
-});
+const handleReset = () => {
+  codeEditorRef.value?.resetCode();
+};
 
 const checkMultiMonitor = () => {
   if (!isChromiumBrowser()) {
@@ -182,8 +186,13 @@ onUnmounted(() => {
             </template>
           </ResizableSplit>
 
-          <div class="submit">
-            <button @click="handleSubmit" :disabled="isSubmitResultLoading">
+          <div class="button-list">
+            <button class="reset" @click="handleReset">초기화</button>
+            <button
+              class="submit"
+              @click="handleSubmit"
+              :disabled="isSubmitResultLoading"
+            >
               제출하기
             </button>
           </div>
@@ -290,25 +299,35 @@ nav a {
   color: var(--color-error);
 }
 
-.submit {
+.button-list {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
   padding: 12px 20px;
   border-top: 1px solid var(--color-border);
 }
 
-.submit button {
+.button-list button {
   padding: 8px 20px;
   border: none;
   border-radius: 4px;
-  background-color: var(--color-primary);
   color: var(--color-white);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
 }
 
-.submit button:hover {
+.button-list .reset {
+  background-color: var(--color-secondary);
+}
+.button-list .reset:hover {
+  background-color: var(--color-secondary-hover);
+}
+
+.button-list .submit {
+  background-color: var(--color-primary);
+}
+.button-list .submit:hover {
   background-color: var(--color-primary-hover);
 }
 </style>

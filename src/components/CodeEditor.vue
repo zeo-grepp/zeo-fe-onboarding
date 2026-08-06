@@ -17,7 +17,8 @@ const containerRef = ref<HTMLDivElement | null>(null);
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
 const getCode = () => editor?.getValue();
-defineExpose({ getCode });
+const resetCode = () => editor?.setValue(props.code);
+defineExpose({ getCode, resetCode });
 
 const getModel = (
   problemId: number,
