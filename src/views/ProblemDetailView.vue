@@ -4,6 +4,7 @@ import { useFetch } from "../composables/useFetch";
 import type { ProblemDetail } from "../mocks/data";
 import { computed, ref, watch } from "vue";
 import CodeEditor from "../components/CodeEditor.vue";
+import ResizableSplit from "../components/ResizableSplit.vue";
 
 const route = useRoute();
 
@@ -27,6 +28,9 @@ watch(
   },
   { immediate: true },
 );
+
+const horizontalRatio = ref(0.5);
+const verticalRatio = ref(0.7);
 </script>
 
 <template>
@@ -35,43 +39,60 @@ watch(
     <nav>
       <RouterLink to="/">문제 목록</RouterLink>
     </nav>
-    <div class="content">
-      <section class="left">
-        <h2>문제 내용</h2>
-        <p>{{ problem?.description }}</p>
-      </section>
+    <ResizableSplit
+      class="content"
+      direction="horizontal"
+      v-model="horizontalRatio"
+    >
+      <template #first>
+        <section class="left">
+          <h2>문제 내용</h2>
+          <p>{{ problem?.description }}</p>
+        </section>
+      </template>
 
-      <section class="right">
-        <div class="language">
-          <label>현재 언어</label>
-          <select v-model="selectedLanguageId">
-            <option
-              v-for="{ id, language } in problem?.languages"
-              :key="id"
-              :value="id"
-            >
-              {{ language }}
-            </option>
-          </select>
-        </div>
+      <template #second>
+        <section class="right">
+          <div class="language">
+            <label>현재 언어</label>
+            <select v-model="selectedLanguageId">
+              <option
+                v-for="{ id, language } in problem?.languages"
+                :key="id"
+                :value="id"
+              >
+                {{ language }}
+              </option>
+            </select>
+          </div>
 
-        <div class="editor">
-          <CodeEditor
-            v-if="problem && selectedLanguage"
-            :problemId="problem.id"
-            :languageId="selectedLanguage.id"
-            :code="selectedLanguage.initialCode"
-            :language="selectedLanguage.language"
-          />
-        </div>
+          <ResizableSplit
+            class="editor-result"
+            direction="vertical"
+            v-model="verticalRatio"
+          >
+            <template #first>
+              <div class="editor">
+                <CodeEditor
+                  v-if="problem && selectedLanguage"
+                  :problemId="problem.id"
+                  :languageId="selectedLanguage.id"
+                  :code="selectedLanguage.initialCode"
+                  :language="selectedLanguage.language"
+                />
+              </div>
+            </template>
+            <template #second>
+              <div class="result">결과 표시</div>
+            </template>
+          </ResizableSplit>
 
-        <div class="result">결과 표시</div>
-
-        <div class="submit">
-          <button>제출하기</button>
-        </div>
-      </section>
-    </div>
+          <div class="submit">
+            <button>제출하기</button>
+          </div>
+        </section>
+      </template>
+    </ResizableSplit>
   </div>
 </template>
 
@@ -100,7 +121,7 @@ nav a {
 }
 
 .left {
-  flex: 1;
+  height: 100%;
   padding: 20px 40px;
   overflow-y: auto;
 }
@@ -115,15 +136,19 @@ nav a {
 }
 
 .right {
-  flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--color-border);
 }
 
-.editor {
+.editor-result {
   flex: 1;
   min-height: 0;
+}
+
+.editor {
+  height: 100%;
 }
 
 .language {
@@ -146,7 +171,7 @@ nav a {
 }
 
 .result {
-  height: 200px;
+  height: 100%;
   border-top: 1px solid var(--color-border);
 }
 
