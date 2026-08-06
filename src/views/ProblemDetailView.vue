@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { useFetch } from "../composables/useFetch";
+import { useMutation } from "../composables/useMutation";
 import type { ProblemDetail } from "../mocks/data";
 import { computed, ref, watch } from "vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import ResizableSplit from "../components/ResizableSplit.vue";
 import { getLocalStorageItem, setLocalStorageItem } from "../utils/storage";
 import { STORAGE_KEYS } from "../constants/storageKeys";
+import type { SubmitParams } from "../mocks/handlers";
 
 const route = useRoute();
 
@@ -16,13 +18,11 @@ const { data: problem } = useFetch<ProblemDetail>(
 
 const selectedLanguageId = ref<number | null>(null);
 const selectedLanguage = computed(() =>
-  problem?.value?.languages.find(
-    (lang) => lang.id === selectedLanguageId.value,
-  ),
+  problem.value?.languages.find((lang) => lang.id === selectedLanguageId.value),
 );
 
 watch(selectedLanguageId, (newSelectedLanguageId) => {
-  const problemId = problem?.value?.id;
+  const problemId = problem.value?.id;
   if (!problemId) return;
 
   setLocalStorageItem(STORAGE_KEYS.language(problemId), newSelectedLanguageId);
@@ -47,6 +47,49 @@ watch(
 
 const horizontalRatio = ref(0.5);
 const verticalRatio = ref(0.7);
+
+const codeEditorRef = ref<InstanceType<typeof CodeEditor> | null>(null);
+
+const submit = async (params: SubmitParams) => {
+  return fetch("/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(params),
+  }).then((res) => res.json());
+};
+
+const {
+  data: submitResult,
+  isLoading: isSubmitResultLoading,
+  error: submitResultError,
+  mutate,
+} = useMutation<[SubmitParams], { msg: string }>(submit);
+
+const handleSubmit = () => {
+  const code = codeEditorRef.value?.getCode();
+
+  const problemId = problem.value?.id;
+  const languageId = selectedLanguageId.value;
+
+  if (!problemId || !languageId) {
+    return;
+  }
+
+  if (!code) {
+    alert("코드를 작성해 주세요.");
+    return;
+  }
+
+  mutate({
+    problemId,
+    languageId,
+    code,
+  });
+};
+
+watch([problem, selectedLanguageId], () => {
+  submitResult.value = null;
+});
 </script>
 
 <template>
@@ -90,6 +133,7 @@ const verticalRatio = ref(0.7);
             <template #first>
               <div class="editor">
                 <CodeEditor
+                  ref="codeEditorRef"
                   v-if="problem && selectedLanguage"
                   :problemId="problem.id"
                   :languageId="selectedLanguage.id"
@@ -99,12 +143,27 @@ const verticalRatio = ref(0.7);
               </div>
             </template>
             <template #second>
-              <div class="result">결과 표시</div>
+              <div class="result">
+                <p v-if="isSubmitResultLoading" class="result-message loading">
+                  채점 중...
+                </p>
+                <p v-else-if="submitResultError" class="result-message error">
+                  {{ submitResultError.message }}
+                </p>
+                <p v-else-if="submitResult" class="result-message">
+                  {{ submitResult.msg }}
+                </p>
+                <p v-else class="result-message placeholder">
+                  결과가 여기에 표시됩니다.
+                </p>
+              </div>
             </template>
           </ResizableSplit>
 
           <div class="submit">
-            <button>제출하기</button>
+            <button @click="handleSubmit" :disabled="isSubmitResultLoading">
+              제출하기
+            </button>
           </div>
         </section>
       </template>
@@ -165,6 +224,8 @@ nav a {
 
 .editor {
   height: 100%;
+  padding-top: 12px;
+  box-sizing: border-box;
 }
 
 .language {
@@ -188,7 +249,23 @@ nav a {
 
 .result {
   height: 100%;
+  padding: 12px 20px;
+  overflow-y: auto;
   border-top: 1px solid var(--color-border);
+}
+
+.result-message {
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+.result-message.placeholder,
+.result-message.loading {
+  color: var(--color-text-muted);
+}
+
+.result-message.error {
+  color: var(--color-error);
 }
 
 .submit {
@@ -203,7 +280,7 @@ nav a {
   border: none;
   border-radius: 4px;
   background-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-white);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;

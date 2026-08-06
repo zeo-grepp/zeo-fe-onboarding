@@ -16,6 +16,9 @@ const props = defineProps<{
 const containerRef = ref<HTMLDivElement | null>(null);
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
+const getCode = () => editor?.getValue();
+defineExpose({ getCode });
+
 const getModel = (
   problemId: number,
   languageId: number,
@@ -58,6 +61,7 @@ onMounted(() => {
     model: initModel,
     theme: "vs-light",
     automaticLayout: true,
+    scrollBeyondLastLine: false,
   });
 });
 

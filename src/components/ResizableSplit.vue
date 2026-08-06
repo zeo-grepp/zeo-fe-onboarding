@@ -114,7 +114,7 @@ onUnmounted(() => {
 
 .divider:hover,
 .divider:active {
-  background-color: #8a97a3;
+  background-color: var(--color-border-active);
 }
 
 .resizable-split.horizontal > .divider {
@@ -141,8 +141,8 @@ onUnmounted(() => {
   transform: translate(-70%, -50%);
   background-image: repeating-linear-gradient(
     to right,
-    #8a97a3 0,
-    #8a97a3 3px,
+    var(--color-border-active) 0,
+    var(--color-border-active) 3px,
     transparent 3px,
     transparent 5px
   );
@@ -172,8 +172,8 @@ onUnmounted(() => {
   transform: translateX(-50%);
   background-image: repeating-linear-gradient(
     to bottom,
-    #8a97a3 0,
-    #8a97a3 3px,
+    var(--color-border-active) 0,
+    var(--color-border-active) 3px,
     transparent 3px,
     transparent 5px
   );
