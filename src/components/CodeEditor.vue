@@ -4,6 +4,7 @@ import * as monaco from "monaco-editor";
 import { modelCache } from "../monaco-model-cache";
 import { setLocalStorageItem, getLocalStorageItem } from "../utils/storage";
 import { STORAGE_KEYS } from "../constants/storageKeys";
+import { debounce } from "../utils/debounce";
 
 const props = defineProps<{
   problemId: number;
@@ -14,25 +15,6 @@ const props = defineProps<{
 
 const containerRef = ref<HTMLDivElement | null>(null);
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
-
-//TODO: utils로 분리
-const debounce = <T extends (...args: any[]) => void>(
-  callback: T,
-  delay = 300,
-) => {
-  let timer: ReturnType<typeof setTimeout> | null = null;
-
-  const debounced = (...args: Parameters<T>) => {
-    if (timer !== null) clearTimeout(timer);
-
-    timer = setTimeout(() => {
-      timer = null;
-      callback(...args);
-    }, delay);
-  };
-
-  return debounced;
-};
 
 const getModel = (
   problemId: number,

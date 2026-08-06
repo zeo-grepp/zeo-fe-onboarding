@@ -1,6 +1,6 @@
 import { Ref, ref, watchEffect } from "vue";
 
-export function useFetch<T>(url: Ref<string> | (() => string)) {
+export const useFetch = <T>(url: Ref<string> | (() => string)) => {
   const data = ref<T | null>(null);
   const isLoading = ref(true);
   const error = ref<Error | null>(null);
@@ -22,4 +22,4 @@ export function useFetch<T>(url: Ref<string> | (() => string)) {
   });
 
   return { data, isLoading, error };
-}
+};

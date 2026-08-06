@@ -12,17 +12,3 @@ export const getLocalStorageItem = <T>(key: string): T | null => {
     return null;
   }
 };
-
-// export const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
-//   try {
-//     const storedValue = window.localStorage.getItem(key);
-
-//     if (storedValue) {
-//       return JSON.parse(storedValue);
-//     }
-
-//     return defaultValue;
-//   } catch (e) {
-//     return defaultValue;
-//   }
-// };

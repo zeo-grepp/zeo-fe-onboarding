@@ -7,12 +7,12 @@ interface SubmitRequestBody {
   code: string;
 }
 
-function runJavascriptSolution(code: string, args: number[]): number {
+const runJavascriptSolution = (code: string, args: number[]): number => {
   const createSolution = new Function(`${code}\nreturn solution;`);
   const solution = createSolution();
 
   return solution(...args);
-}
+};
 
 export const handlers = [
   http.get("/lists", () => {
