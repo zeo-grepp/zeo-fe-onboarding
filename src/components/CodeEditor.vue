@@ -14,6 +14,25 @@ const props = defineProps<{
 const containerRef = ref<HTMLDivElement | null>(null);
 let editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
+//TODO: utils로 분리
+const debounce = <T extends (...args: any[]) => void>(
+  callback: T,
+  delay = 300,
+) => {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const debounced = (...args: Parameters<T>) => {
+    if (timer !== null) clearTimeout(timer);
+
+    timer = setTimeout(() => {
+      timer = null;
+      callback(...args);
+    }, delay);
+  };
+
+  return debounced;
+};
+
 const getModel = (
   problemId: number,
   languageId: number,
@@ -25,7 +44,17 @@ const getModel = (
   const existingModel = modelCache.get(cacheKey);
   if (existingModel) return existingModel;
 
-  const model = monaco.editor.createModel(code, language);
+  const localCode = localStorage.getItem(`code:${cacheKey}`);
+  const model = monaco.editor.createModel(localCode ?? code, language);
+
+  const saveContent = debounce((content: string) =>
+    localStorage.setItem(`code:${cacheKey}`, content),
+  );
+
+  model.onDidChangeContent(() => {
+    saveContent(model.getValue());
+  });
+
   modelCache.set(cacheKey, model);
 
   return model;
