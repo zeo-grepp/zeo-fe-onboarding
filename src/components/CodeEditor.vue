@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "vue";
-
 import * as monaco from "monaco-editor";
 import { modelCache } from "../monaco-model-cache";
+import { setLocalStorageItem, getLocalStorageItem } from "../utils/storage";
+import { STORAGE_KEYS } from "../constants/storageKeys";
 
 const props = defineProps<{
   problemId: number;
@@ -44,11 +45,12 @@ const getModel = (
   const existingModel = modelCache.get(cacheKey);
   if (existingModel) return existingModel;
 
-  const localCode = localStorage.getItem(`code:${cacheKey}`);
+  const storageKey = STORAGE_KEYS.code(problemId, languageId);
+  const localCode = getLocalStorageItem<string>(storageKey);
   const model = monaco.editor.createModel(localCode ?? code, language);
 
   const saveContent = debounce((content: string) =>
-    localStorage.setItem(`code:${cacheKey}`, content),
+    setLocalStorageItem(storageKey, content),
   );
 
   model.onDidChangeContent(() => {

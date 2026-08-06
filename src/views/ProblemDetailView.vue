@@ -5,6 +5,8 @@ import type { ProblemDetail } from "../mocks/data";
 import { computed, ref, watch } from "vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import ResizableSplit from "../components/ResizableSplit.vue";
+import { getLocalStorageItem, setLocalStorageItem } from "../utils/storage";
+import { STORAGE_KEYS } from "../constants/storageKeys";
 
 const route = useRoute();
 
@@ -23,18 +25,21 @@ watch(selectedLanguageId, (newSelectedLanguageId) => {
   const problemId = problem?.value?.id;
   if (!problemId) return;
 
-  localStorage.setItem(`lang:${problemId}`, String(newSelectedLanguageId));
+  setLocalStorageItem(STORAGE_KEYS.language(problemId), newSelectedLanguageId);
 });
 
 watch(
   problem,
   (newProblem) => {
     if (newProblem && newProblem.languages.length > 0) {
-      const localLanguageId = localStorage.getItem(`lang:${newProblem.id}`);
-      //TODO: localLanguageId 존재 검증 로직 필요 시 추가
-
-      selectedLanguageId.value =
-        Number(localLanguageId) || newProblem.languages[0].id;
+      const localLanguageId = getLocalStorageItem<number>(
+        STORAGE_KEYS.language(newProblem.id),
+      );
+      selectedLanguageId.value = newProblem.languages.some(
+        ({ id }) => id === localLanguageId,
+      )
+        ? localLanguageId
+        : newProblem.languages[0].id;
     }
   },
   { immediate: true },
