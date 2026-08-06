@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useFetch } from "../composables/useFetch";
 import { useMutation } from "../composables/useMutation";
 import type { ProblemDetail } from "../mocks/data";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import CodeEditor from "../components/CodeEditor.vue";
 import ResizableSplit from "../components/ResizableSplit.vue";
 import { getLocalStorageItem, setLocalStorageItem } from "../utils/storage";
 import { STORAGE_KEYS } from "../constants/storageKeys";
 import type { SubmitParams } from "../mocks/handlers";
+import { isChromiumBrowser } from "../utils/agent";
 
 const route = useRoute();
+const router = useRouter();
 
 const { data: problem } = useFetch<ProblemDetail>(
   () => `/details/${route.params.id}`,
@@ -89,6 +91,26 @@ const handleSubmit = () => {
 
 watch([problem, selectedLanguageId], () => {
   submitResult.value = null;
+});
+
+const checkMultiMonitor = () => {
+  if (!isChromiumBrowser()) {
+    alert("Chromium 계열 브라우저를 이용해 주세요.");
+    router.push("/");
+  }
+  if (window.screen.isExtended) {
+    alert("다중 모니터를 사용할 수 없습니다.");
+    router.push("/");
+  }
+};
+
+onMounted(() => {
+  checkMultiMonitor();
+  window.screen.addEventListener("change", checkMultiMonitor);
+});
+
+onUnmounted(() => {
+  window.screen.removeEventListener("change", checkMultiMonitor);
 });
 </script>
 
