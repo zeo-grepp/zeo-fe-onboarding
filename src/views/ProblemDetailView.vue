@@ -19,11 +19,22 @@ const selectedLanguage = computed(() =>
   ),
 );
 
+watch(selectedLanguageId, (newSelectedLanguageId) => {
+  const problemId = problem?.value?.id;
+  if (!problemId) return;
+
+  localStorage.setItem(`lang:${problemId}`, String(newSelectedLanguageId));
+});
+
 watch(
   problem,
   (newProblem) => {
     if (newProblem && newProblem.languages.length > 0) {
-      selectedLanguageId.value = newProblem.languages[0].id;
+      const localLanguageId = localStorage.getItem(`lang:${newProblem.id}`);
+      //TODO: localLanguageId 존재 검증 로직 필요 시 추가
+
+      selectedLanguageId.value =
+        Number(localLanguageId) || newProblem.languages[0].id;
     }
   },
   { immediate: true },
