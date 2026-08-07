@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "monaco-editor": "^0.49.0",
@@ -15,9 +16,11 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
+    "happy-dom": "^20.11.1",
     "msw": "^2.3.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
+    "vitest": "^3.2.7",
     "vue-tsc": "^2.0.6"
   },
   "msw": {
