@@ -5,20 +5,42 @@ export const useFetch = <T>(url: Ref<string> | (() => string)) => {
   const isLoading = ref(true);
   const error = ref<Error | null>(null);
 
-  watchEffect(() => {
+  watchEffect((onCleanup) => {
+    const controller = new AbortController();
+
     data.value = null;
     isLoading.value = true;
     error.value = null;
 
     const currentUrl = typeof url === "function" ? url() : url.value;
 
-    fetch(currentUrl)
-      .then((res) =>
-        res.ok ? res.json() : Promise.reject(new Error("요청 실패")),
-      )
-      .then((json) => (data.value = json))
-      .catch((err) => (error.value = err))
-      .finally(() => (isLoading.value = false));
+    const fetchData = async () => {
+      try {
+        const res = await fetch(currentUrl, { signal: controller.signal });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message ?? "요청 실패");
+        }
+
+        data.value = data;
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          error.value = err;
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          isLoading.value = false;
+        }
+      }
+    };
+
+    fetchData();
+
+    onCleanup(() => {
+      controller.abort();
+    });
   });
 
   return { data, isLoading, error };

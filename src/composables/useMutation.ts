@@ -8,13 +8,18 @@ export const useMutation = <Args extends unknown[], T>(
   const error = ref<Error | null>(null);
 
   const mutate = async (...args: Args) => {
+    data.value = null;
     isLoading.value = true;
     error.value = null;
 
     try {
       data.value = await mutationFn(...args);
     } catch (err) {
-      error.value = err as Error;
+      if (err instanceof Error) {
+        error.value = err;
+      } else {
+        error.value = new Error(String(err));
+      }
     } finally {
       isLoading.value = false;
     }

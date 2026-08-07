@@ -14,9 +14,11 @@ import { isChromiumBrowser } from "../utils/agent";
 const route = useRoute();
 const router = useRouter();
 
-const { data: problem } = useFetch<ProblemDetail>(
-  () => `/details/${route.params.id}`,
-);
+const {
+  data: problem,
+  isLoading: isProblemLoading,
+  error: problemError,
+} = useFetch<ProblemDetail>(() => `/details/${route.params.id}`);
 
 const selectedLanguageId = ref<number | null>(null);
 const selectedLanguage = computed(() =>
@@ -53,11 +55,19 @@ const verticalRatio = ref(0.7);
 const codeEditorRef = ref<InstanceType<typeof CodeEditor> | null>(null);
 
 const submit = async (params: SubmitParams) => {
-  return fetch("/submit", {
+  const res = await fetch("/submit", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),
-  }).then((res) => res.json());
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message);
+  }
+
+  return data;
 };
 
 const {
@@ -124,7 +134,11 @@ onUnmounted(() => {
     <nav>
       <RouterLink to="/">문제 목록</RouterLink>
     </nav>
+    <!-- TODO: 화면 전체 로딩으로 개선 -->
+    <div v-if="isProblemLoading">로딩 중...</div>
+    <div v-else-if="problemError">{{ problemError.message }}</div>
     <ResizableSplit
+      v-else
       class="content"
       direction="horizontal"
       v-model="horizontalRatio"
