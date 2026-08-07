@@ -18,13 +18,13 @@ export const useFetch = <T>(url: Ref<string> | (() => string)) => {
       try {
         const res = await fetch(currentUrl, { signal: controller.signal });
 
-        const data = await res.json();
+        const result = await res.json();
 
         if (!res.ok) {
-          throw new Error(data.message ?? "요청 실패");
+          throw new Error(result.message ?? "요청 실패");
         }
 
-        data.value = data;
+        data.value = result;
       } catch (err) {
         if (err instanceof Error && err.name !== "AbortError") {
           error.value = err;

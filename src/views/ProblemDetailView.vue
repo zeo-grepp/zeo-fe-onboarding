@@ -61,13 +61,13 @@ const submit = async (params: SubmitParams) => {
     body: JSON.stringify(params),
   });
 
-  const data = await res.json();
+  const result = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.message);
+    throw new Error(result.message);
   }
 
-  return data;
+  return result;
 };
 
 const {
