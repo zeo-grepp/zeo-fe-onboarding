@@ -111,6 +111,7 @@ const checkMultiMonitor = () => {
   if (!isChromiumBrowser()) {
     alert("Chromium 계열 브라우저를 이용해 주세요.");
     router.push("/");
+    return;
   }
   if (window.screen.isExtended) {
     alert("다중 모니터를 사용할 수 없습니다.");
