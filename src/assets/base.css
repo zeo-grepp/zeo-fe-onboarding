@@ -1,0 +1,19 @@
+:root {
+  /* Brand */
+  --color-primary: #0078ff;
+  --color-primary-hover: #0053f4;
+  --color-secondary: #44576c;
+  --color-secondary-hover: #37485d;
+  --color-error: #e0483e;
+
+  /* Border & divider */
+  --color-border: #d7e2eb;
+  --color-border-hover: #fbfbfd;
+  --color-border-active: #8a97a3;
+
+  /* Text */
+  --color-text-muted: #999;
+
+  /* Base */
+  --color-white: #fff;
+}

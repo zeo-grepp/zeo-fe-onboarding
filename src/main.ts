@@ -1,8 +1,9 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import { worker } from './mocks';
-import './monaco-worker';
+import "./assets/main.css";
 
-await worker.start();
+import { createApp } from "vue";
+import App from "./App.vue";
+import { worker } from "./mocks";
+import "./monaco-worker";
+import { router } from "./router/index.ts";
 
-createApp(App).mount('#app');
+worker.start().then(() => createApp(App).use(router).mount("#app"));
