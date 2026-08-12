@@ -4,7 +4,6 @@ import { computed, onUnmounted, ref } from "vue";
 const props = withDefaults(
   defineProps<{
     direction: "horizontal" | "vertical";
-    modelValue: number; // 0~1 사이의 값
     minPx?: number;
     maxPx?: number;
   }>(),
@@ -14,13 +13,11 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: number): void;
-}>();
+const modelValue = defineModel<number>({ required: true }); // 0~1 사이의 값
 
 const containerRef = ref<HTMLElement | null>(null);
 
-const firstBasis = computed(() => `${props.modelValue * 100}%`);
+const firstBasis = computed(() => `${modelValue.value * 100}%`);
 
 const getClampedRatio = (
   pointerPos: number,
@@ -49,7 +46,7 @@ const onMouseMove = (e: MouseEvent) => {
       props.maxPx,
     );
 
-    emit("update:modelValue", clampedRatio);
+    modelValue.value = clampedRatio;
   } else {
     const y = e.clientY - containerRect.top; //위쪽 slot의 y좌표 (높이)
     const clampedRatio = getClampedRatio(
@@ -59,7 +56,7 @@ const onMouseMove = (e: MouseEvent) => {
       props.maxPx,
     );
 
-    emit("update:modelValue", clampedRatio);
+    modelValue.value = clampedRatio;
   }
 };
 
